@@ -9,24 +9,32 @@ import tempfile
 import base64
 import os
 
+# Set your proxy settings
+proxy_server = 'http://proxy1.doj.gov.hk:8080'
+os.environ['HTTP_PROXY'] = proxy_server
+os.environ['HTTPS_PROXY'] = proxy_server
+
 # Set up Streamlit app
 st.set_page_config(layout="wide")
 st.title("AI-Powered Technical Stock Analysis Dashboard")
 st.sidebar.header("Configuration")
 
 # Input for stock ticker and date range
-ticker = st.sidebar.text_input("Enter Stock Ticker (e.g., AAPL):", "AAPL")
-start_date = st.sidebar.date_input("Start Date", value=pd.to_datetime("2023-01-01"))
-end_date = st.sidebar.date_input("End Date", value=pd.to_datetime("2024-12-14"))
+ticker = st.sidebar.text_input("Enter Stock Ticker (e.g., 0001.HK):", "0001.HK")
+start_date = st.sidebar.date_input("Start Date", value=pd.to_datetime("2025-01-01"))
+end_date = st.sidebar.date_input("End Date", value=pd.to_datetime("2025-12-14"))
 
 # Fetch stock data
 if st.sidebar.button("Fetch Data"):
-    st.session_state["stock_data"] = yf.download(ticker, start=start_date, end=end_date)
+    st.session_state["stock_data"] = yf.download(ticker, start=start_date, end=end_date, auto_adjust=True, multi_level_index=False)
     st.success("Stock data loaded successfully!")
 
 # Check if data is available
 if "stock_data" in st.session_state:
     data = st.session_state["stock_data"]
+
+    #data.columns.droplevel(1)
+    #print("Downloaded data\n", data)
 
     # Plot candlestick chart
     fig = go.Figure(data=[
